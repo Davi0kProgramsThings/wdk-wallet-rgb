@@ -72,6 +72,9 @@ export default class WalletManagerRgb extends WalletManager {
       const account = await WalletAccountRgb.at(
         this.seed,
         {
+          // @review
+          // @author Davide Casale <davide.casale@tether.io>
+          // You can safely remove the following line:
           ...this._config,
           network: this._network,
           rgb_node_endpoint: this._rgbNodeEndpoint,
@@ -87,7 +90,14 @@ export default class WalletManagerRgb extends WalletManager {
 
   /**
    * Restores the account from a wallet backup.
-   *
+
+     // @review
+     // @author Davide Casale <davide.casale@tether.io>
+     // It would be better to define and export a new type definition in the top-level of the file that includes
+     // the specification for the backup and password fields instead of using an anonymous type.
+     //
+     // You can then use it here with:
+     // * @param {RgbWalletConfig & RestoreAccountOptions} restoreConfig - Restore configuration containing backup details.
    * @param {RgbWalletConfig & {
    *   backup: Buffer | Uint8Array | ArrayBuffer | import('node:stream').Readable,
    *   password: string,
@@ -101,6 +111,9 @@ export default class WalletManagerRgb extends WalletManager {
     await this._initializeKeys()
 
     const config = {
+      // @review
+      // @author Davide Casale <davide.casale@tether.io>
+      // You can safely remove the following line:
       ...this._config,
       ...restoreConfig,
       network: this._network,
@@ -108,12 +121,20 @@ export default class WalletManagerRgb extends WalletManager {
       keys: this._keys
     }
 
+    // @review
+    // @author Davide Casale <davide.casale@tether.io>
+    // This condition will never be true since if the seed is not given the _initializeKeys
+    // method will throw first, so you can remove this check:
     if (!config.keys) {
       throw new Error('Wallet keys are required to restore from backup.')
     }
 
     const account = await WalletAccountRgb.fromBackup(this.seed, config)
     this._accounts[index] = account
+
+    // @review
+    // @author Davide Casale <davide.casale@tether.io>
+    // The _keys property will already be set to config.keys, so you can remove this line:
     this._keys = config.keys
 
     return account
@@ -123,6 +144,10 @@ export default class WalletManagerRgb extends WalletManager {
    * Returns the wallet account at a specific BIP-44 derivation path.
    *
    * @param {string} path - The derivation path (e.g. "0'/0/0").
+     // @review
+     // @author Davide Casale <davide.casale@tether.io>
+     // Change the return type of methods that always throw to never:
+     // * @returns {Promise<never>} The account.
    * @returns {Promise<WalletAccountRgb>} The account.
    */
   async getAccountByPath (path) {

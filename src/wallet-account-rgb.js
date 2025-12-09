@@ -90,6 +90,10 @@ export default class WalletAccountRgb extends WalletAccountReadOnlyRgb {
    * Restores an RGB wallet account from an encrypted backup.
    *
    * @param {string | Uint8Array} seed - The wallet's BIP-39 seed phrase.
+     // @review
+     // @author Davide Casale <davide.casale@tether.io>
+     // The following comment also applies here:
+     // https://github.com/Davi0kProgramsThings/wdk-wallet-rgb/blob/main/src/wallet-manager-rgb.js#L94
    * @param {RgbWalletConfig & { backup: Buffer | Uint8Array | ArrayBuffer | import('node:stream').Readable, password: string, filename?: string, xpub_van?: string, xpub_col?: string, master_fingerprint?: string }} config - The configuration object with backup data.
    * @returns {Promise<WalletAccountRgb>} The restored wallet account.
    */
@@ -182,7 +186,11 @@ export default class WalletAccountRgb extends WalletAccountReadOnlyRgb {
    * Note: This derives keys using the same BIP-86 path that rgb-sdk uses for WDK interface compatibility.
    * RGB SDK handles all actual operations internally.
    * Includes RGB-specific fields: accountXpubVanilla, accountXpubColored, masterFingerprint.
-   *
+
+     // @review
+     // @author Davide Casale <davide.casale@tether.io>
+     // The following comment also applies here:
+     // https://github.com/Davi0kProgramsThings/wdk-wallet-rgb/blob/main/src/wallet-manager-rgb.js#L94
    * @type {KeyPair & { accountXpubVanilla?: string, accountXpubColored?: string, masterFingerprint?: string}}
    */
   get keyPair () {
@@ -238,8 +246,14 @@ export default class WalletAccountRgb extends WalletAccountReadOnlyRgb {
    * This method uses the RGB SDK's sendBegin/sendEnd flow for Bitcoin transactions.
    *
    * @param {RgbTransaction} tx - The transaction.
+     // @review
+     // @author Davide Casale <davide.casale@tether.io>
+     // You can remove the following @param tags:
    * @param {string} tx.to - Recipient Bitcoin address.
    * @param {number} tx.value - Amount in satoshis.
+     // @review
+     // @author Davide Casale <davide.casale@tether.io>
+     // Add this field to the 'RgbTransaction' type and remove this @param tag:
    * @param {number} [tx.fee_rate] - Fee rate in sat/vbyte (default: 1).
    * @returns {Promise<TransactionResult>} The transaction's result.
    */
@@ -265,6 +279,9 @@ export default class WalletAccountRgb extends WalletAccountReadOnlyRgb {
    * Transfers an RGB asset to another wallet.
    * This method implements the RGB transfer flow using sendBegin/sendEnd.
    *
+     // @review
+     // @author Davide Casale <davide.casale@tether.io>
+     // The comment i left on the 'WalletAccountReadOnlyRgb#quoteTransfer' method also applies here:
    * @param {TransferOptions} options - The transfer's options.
    * @property {string} options.asset_id - The RGB asset ID to transfer.
    * @property {string} options.to - The recipient's invoice (from blindReceive).
@@ -313,6 +330,13 @@ export default class WalletAccountRgb extends WalletAccountReadOnlyRgb {
     }
   }
 
+  // @review
+  // @author Davide Casale <davide.casale@tether.io>
+  // It would be great to also provide a limit and skip argument to make pagination
+  // easier to implement for our end users.
+  //
+  // Take a look at how the get transfers method work in @tetherto/wdk-wallet-spark:
+  // https://github.com/tetherto/wdk-wallet-spark/blob/main/src/wallet-account-spark.js#L310
   /**
    * Returns the transfer history of the account.
    *
@@ -364,13 +388,26 @@ export default class WalletAccountRgb extends WalletAccountReadOnlyRgb {
    */
   dispose () {
     if (this._keyPair?.privateKey) {
+      // @review
+      // @author Davide Casale <davide.casale@tether.io>
+      // The private key should always be an Uint8Array and never a string.
       if (typeof this._keyPair.privateKey === 'string') {
         this._keyPair.privateKey = ''
       } else {
+        // @review
+        // @author Davide Casale <davide.casale@tether.io>
+        // Use the sodium_memzero function from sodium_universal instead of fill:
+        // sodium_memzero(this._keyPair.privateKey)
         this._keyPair.privateKey.fill(0)
       }
     }
+
+    // @review
+    // @author Davide Casale <davide.casale@tether.io>
+    // Only the private key should be set to null, not the entire key pair:
+    // this._keyPair.privateKey = null
     this._keyPair = null
+
     this._wallet = null
   }
 
@@ -569,7 +606,13 @@ export default class WalletAccountRgb extends WalletAccountReadOnlyRgb {
 
   /**
    * Registers the wallet with the RGB node.
-   *
+
+     // @review
+     // @author Davide Casale <davide.casale@tether.io>
+     // By the signature of the 'WalletManager#registerWallet' method, this doesn't return void but rather
+     // { address: string; btc_balance: BtcBalance; }. Make sure to properly define this type as a top-level
+     // type definition before referencing it here:
+     // * @returns {Promise<RegisterWalletResult>} Add return value description here...
    * @returns {Promise<void>}
    */
   async registerWallet () {

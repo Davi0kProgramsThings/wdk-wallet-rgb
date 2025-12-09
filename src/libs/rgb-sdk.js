@@ -13,6 +13,11 @@
 // limitations under the License.
 'use strict'
 
+// @review
+// @author Davide Casale <davide.casale@tether.io>
+// You can just do:
+// export { WalletManager, createWallet, deriveKeysFromSeed, Network } from 'rgb-sdk'
+
 import * as rgbSdk from 'rgb-sdk'
 
 const { WalletManager, createWallet, deriveKeysFromSeed, Network } = rgbSdk

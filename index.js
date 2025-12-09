@@ -13,6 +13,11 @@
 // limitations under the License.
 'use strict'
 
+// @review
+// @author Davide Casale <davide.casale@tether.io>
+// Export the 'RgbTransactionReceipt' type:
+// /** @typedef {import('rgb-sdk').Transaction} RgbTransactionReceipt */
+
 /** @typedef {import('@tetherto/wdk-wallet').FeeRates} FeeRates */
 /** @typedef {import('@tetherto/wdk-wallet').KeyPair} KeyPair */
 /** @typedef {import('@tetherto/wdk-wallet').TransactionResult} TransactionResult */
